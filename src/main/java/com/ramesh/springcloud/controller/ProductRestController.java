@@ -5,11 +5,10 @@ import com.ramesh.springcloud.model.Product;
 import com.ramesh.springcloud.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/productapi")
@@ -26,9 +25,14 @@ public class ProductRestController {
 
     @RequestMapping(value = "/products", method = RequestMethod.POST)
     public Product create(@RequestBody Product product) {
-        Coupon coupon = restTemplate.getForObject(couponServiceURL +product.getCouponCode(), Coupon.class);
+        Coupon coupon = restTemplate.getForObject(couponServiceURL + product.getCouponCode(), Coupon.class);
         product.setPrice(product.getPrice().subtract(coupon.getDiscount()));
         return repo.save(product);
+    }
+
+    @GetMapping(value = "/products/{id}")
+    public Optional<Product> getProduct(@PathVariable Long id) {
+        return repo.findById(id);
     }
 
 }
